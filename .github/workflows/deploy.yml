@@ -1,0 +1,47 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image for user
+        uses: docker/build-push-action@v2
+        with:
+          context: ./apps/user
+          push: true
+          tags: lamtran59/user:latest
+
+      - name: Build and push Docker image for auth
+        uses: docker/build-push-action@v2
+        with:
+          context: ./apps/auth
+          push: true
+          tags: lamtran59/auth:latest
+
+      - name: Deploy to Kubernetes
+        uses: appleboy/ssh-action@v0.1.2
+        with:
+          host: ${{ secrets.K8S_HOST }}
+          username: ${{ secrets.K8S_USER }}
+          key: ${{ secrets.K8S_PRIVATE_KEY }}
+          script: |
+            kubectl set image deployment/user-deployment user=lamtran59/user:latest
+            kubectl set image deployment/auth-deployment auth=lamtran59/auth:latest
