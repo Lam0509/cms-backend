@@ -9,4 +9,14 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get('/health')
+  healthCheck(): string {
+    return 'OK';
+  }
+
+  @Get('/test-github-workflow')
+  testGithubWorkflow(): string {
+    return 'Hello World!';
+  }
 }
