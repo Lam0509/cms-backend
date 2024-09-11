@@ -27,14 +27,14 @@ jobs:
         with:
           context: ./apps/user
           push: true
-          tags: yourusername/user:latest
+          tags: lamtran59/user:latest
 
       - name: Build and push Docker image for auth
         uses: docker/build-push-action@v2
         with:
           context: ./apps/auth
           push: true
-          tags: yourusername/auth:latest
+          tags: lamtran59/auth:latest
 
       - name: Set up kubectl
         run: |
@@ -50,5 +50,5 @@ jobs:
 
       - name: Deploy to Kubernetes
         run: |
-          kubectl set image deployment/user-deployment user=yourusername/user:latest
-          kubectl set image deployment/auth-deployment auth=yourusername/auth:latest
+          kubectl set image deployment/user-deployment user=lamtran59/user:latest
+          kubectl set image deployment/auth-deployment auth=lamtran59/auth:latest
