@@ -27,21 +27,28 @@ jobs:
         with:
           context: ./apps/user
           push: true
-          tags: lamtran59/user:latest
+          tags: yourusername/user:latest
 
       - name: Build and push Docker image for auth
         uses: docker/build-push-action@v2
         with:
           context: ./apps/auth
           push: true
-          tags: lamtran59/auth:latest
+          tags: yourusername/auth:latest
+
+      - name: Set up kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+
+      - name: Set up Kubernetes config
+        env:
+          KUBECONFIG_CONTENTS: ${{ secrets.KUBECONFIG }}
+        run: |
+          echo "$KUBECONFIG_CONTENTS" > $HOME/.kube/config
 
       - name: Deploy to Kubernetes
-        uses: appleboy/ssh-action@v0.1.2
-        with:
-          host: ${{ secrets.K8S_HOST }}
-          username: ${{ secrets.K8S_USER }}
-          key: ${{ secrets.K8S_PRIVATE_KEY }}
-          script: |
-            kubectl set image deployment/user-deployment user=lamtran59/user:latest
-            kubectl set image deployment/auth-deployment auth=lamtran59/auth:latest
+        run: |
+          kubectl set image deployment/user-deployment user=yourusername/user:latest
+          kubectl set image deployment/auth-deployment auth=yourusername/auth:latest
