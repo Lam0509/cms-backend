@@ -83,3 +83,30 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## Bảng Users: Lưu trữ thông tin người dùng
+
+```sql
+CREATE TABLE IF NOT EXISTS Users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(20) UNIQUE NOT NULL, -- Mã nhân viên/khách hàng 
+    full_name VARCHAR(255) NOT NULL, -- Họ và tên (bắt buộc)
+    gender ENUM('Nam', 'Nữ', 'Khác') NOT NULL, -- Giới tính (bắt buộc)
+    date_of_birth DATE NULL, -- Ngày sinh (không bắt buộc)
+    place_of_birth VARCHAR(255) NULL, -- Nơi sinh (không bắt buộc)
+    address VARCHAR(255) NULL, -- Địa chỉ (không bắt buộc)
+    id_number VARCHAR(20) UNIQUE NOT NULL, -- Số CMND hoặc CCCD (bắt buộc)
+    id_issue_date DATE NULL, -- Ngày cấp CMND/CCCD (không bắt buộc)
+    id_issue_place VARCHAR(255) NULL, -- Nơi cấp CMND/CCCD (không bắt buộc)
+    phone_number VARCHAR(15) NULL, -- Số điện thoại (không bắt buộc)
+    email VARCHAR(255) UNIQUE NOT NULL, -- Email (bắt buộc)
+    department VARCHAR(100) NULL, -- Phòng ban (chỉ dành cho nhân viên, có thể NULL)
+    position VARCHAR(100) NULL, -- Chức vụ (chỉ dành cho nhân viên, có thể NULL)
+    role ENUM('admin', 'employee', 'customer') DEFAULT 'employee' NOT NULL, -- Vai trò của người dùng (bắt buộc)
+    username VARCHAR(255) UNIQUE NULL, -- Tài khoản (không bắt buộc)
+    password_hash VARCHAR(255) NULL, -- Mật khẩu (không bắt buộc)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL
+);
+
