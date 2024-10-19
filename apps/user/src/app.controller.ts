@@ -6,7 +6,7 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getHello(): string {
+  getHello(): Promise<string> {
     return this.appService.getHello();
   }
 
@@ -18,5 +18,10 @@ export class AppController {
   @Get('/test-github-workflow')
   testGithubWorkflow(): string {
     return 'Hello World!';
+  }
+
+  @Get('/test-elasticsearch')
+  testElasticsearch(): Promise<string> {
+    return this.appService.getHello();
   }
 }

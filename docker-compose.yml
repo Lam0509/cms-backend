@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  user:
+    build:
+      context: ./apps/user
+      dockerfile: Dockerfile
+    container_name: user-service
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mysql://root:password@mysql:3306/db
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+    volumes:
+      - ./apps/user:/app
+      - /app/node_modules
+    depends_on:
+      - mysql
+      - elasticsearch
+
+  auth:
+    build:
+      context: ./apps/auth
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mysql://root:password@mysql:3306/db
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+    volumes:
+      - ./apps/auth:/app
+      - /app/node_modules
+    depends_on:
+      - mysql
+      - elasticsearch
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: db
+    volumes:
+      - mysqldata:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql    
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+volumes:
+  mysqldata:
+  esdata:

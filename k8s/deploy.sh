@@ -31,5 +31,7 @@ kubectl apply -f ./user/deployment.yaml
 kubectl apply -f ./user/service.yaml
 kubectl apply -f ./auth/deployment.yaml
 kubectl apply -f ./auth/service.yaml
+kubectl apply -f ./elasticsearch/deployment.yaml
+kubectl apply -f ./elasticsearch/service.yaml
 
 echo "Deployment completed successfully!"

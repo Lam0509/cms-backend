@@ -1,5 +1,6 @@
 # Dockerfile
-FROM --platform=$BUILDPLATFORM node:18
+# FROM --platform=$BUILDPLATFORM node:18
+FROM node:18
 
 WORKDIR /app
 
@@ -11,4 +12,4 @@ RUN npm install
 EXPOSE 3000
 
 # Lệnh để chạy ứng dụng
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:dev"]
