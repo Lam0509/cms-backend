@@ -2,15 +2,16 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ElasticsearchModule, ElasticsearchService } from '@nestjs/elasticsearch';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ElasticSearchService } from './elasticsearch.service';
+import { AppController } from './controllers/app.controller';
+import { AppService } from './services/auth.service';
+import { ElasticSearchService } from './services/elasticsearch.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    // TypeORM
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -21,6 +22,7 @@ import { ElasticSearchService } from './elasticsearch.service';
       }),
       inject: [ConfigService],
     }),
+    // Elasticsearch
     ElasticsearchModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -28,6 +30,7 @@ import { ElasticSearchService } from './elasticsearch.service';
       }),
       inject: [ConfigService],
     }),
+    // Kafka
   ],
   controllers: [AppController],
   providers: [AppService, ElasticSearchService],

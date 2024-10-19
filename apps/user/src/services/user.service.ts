@@ -14,6 +14,8 @@ export class AppService {
         },
       },
     });
+
+    console.log(result);
     
     if (result.body && result.body.hits && result.body.hits.total) {
       return `Hello World! Elasticsearch found ${result.body.hits.total.value} matching documents.`;

@@ -5,13 +5,13 @@ services:
     build:
       context: ./apps/user
       dockerfile: Dockerfile
+      args:
+        - NODE_ENV=${NODE_ENV:-development}
     container_name: user-service
     ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=mysql://root:password@mysql:3306/db
-      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+      - "${USER_PORT:-3000}:3000"
+    env_file:
+      - .env.${NODE_ENV:-development}
     volumes:
       - ./apps/user:/app
       - /app/node_modules
@@ -23,13 +23,13 @@ services:
     build:
       context: ./apps/auth
       dockerfile: Dockerfile
+      args:
+        - NODE_ENV=${NODE_ENV:-development}
     container_name: auth-service
     ports:
-      - "3001:3000"
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=mysql://root:password@mysql:3306/db
-      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+      - "${AUTH_PORT:-3001}:3000"
+    env_file:
+      - .env.${NODE_ENV:-development}
     volumes:
       - ./apps/auth:/app
       - /app/node_modules
@@ -40,19 +40,18 @@ services:
   mysql:
     image: mysql:8
     container_name: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: db
+    env_file:
+      - .env.${NODE_ENV:-development}
     volumes:
       - mysqldata:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
 
   adminer:
     image: adminer
     container_name: adminer
     ports:
-      - "8080:8080"
+      - "${ADMINER_PORT:-8080}:8080"
     depends_on:
       - mysql    
 
@@ -63,10 +62,41 @@ services:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "${ES_PORT:-9200}:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.14.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "${KIBANA_PORT:-5601}:5601"
+    depends_on:
+      - elasticsearch 
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "22181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1       
 
 volumes:
   mysqldata:

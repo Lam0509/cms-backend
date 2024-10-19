@@ -2,15 +2,17 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ElasticSearchService } from './elasticsearch.service';
+import { AppController } from './controllers/app.controller';
+import { AppService } from './services/user.service';
+import { ElasticSearchService } from './services/elasticsearch.service';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    // TypeORM
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -21,6 +23,7 @@ import { ElasticSearchService } from './elasticsearch.service';
       }),
       inject: [ConfigService],
     }),
+    // Elasticsearch
     ElasticsearchModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -28,6 +31,26 @@ import { ElasticSearchService } from './elasticsearch.service';
       }),
       inject: [ConfigService],
     }),
+    // Kafka
+    ClientsModule.registerAsync([
+      {
+        name: 'KAFKA_SERVICE',
+        imports: [ConfigModule],
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.KAFKA,
+          options: {
+            client: {
+              clientId: configService.get<string>('KAFKA_CLIENT_ID'),
+              brokers: configService.get<string>('KAFKA_BROKERS').split(','),
+            },
+            consumer: {
+              groupId: configService.get<string>('KAFKA_GROUP_ID'),
+            },
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService, ElasticSearchService],

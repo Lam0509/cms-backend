@@ -11,9 +11,9 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const elasticsearch_1 = require("@nestjs/elasticsearch");
 const typeorm_1 = require("@nestjs/typeorm");
-const app_controller_1 = require("./app.controller");
-const app_service_1 = require("./app.service");
-const elasticsearch_service_1 = require("./elasticsearch.service");
+const app_controller_1 = require("./controllers/app.controller");
+const auth_service_1 = require("./services/auth.service");
+const elasticsearch_service_1 = require("./services/elasticsearch.service");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -42,7 +42,7 @@ exports.AppModule = AppModule = __decorate([
             }),
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService, elasticsearch_service_1.ElasticSearchService],
+        providers: [auth_service_1.AppService, elasticsearch_service_1.ElasticSearchService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map
